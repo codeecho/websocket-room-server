@@ -1,0 +1,44 @@
+<!doctype html>
+<title>/</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+    * {
+        font: 18px monospace;
+    }
+</style>
+<input autofocus style="width:75%">
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    var socket = io("http://node16.codenvy.io:59019/")
+        .on('connect', function() {
+            const userId = Math.random();
+            const username = 'User ' + userId;
+            document.title = location.pathname;
+            socket.emit('action', { type: 'server/JOIN_ROOM', room: location.pathname, user: {id: userId, name: username} });
+        })
+        .on('announce', log)
+        .on('action', function(data) {
+            if(data.type === 'client/MESSAGE'){
+                log(data.user.name + ': ' + data.text);
+            }else if(data.type === 'client/USER_CONNECTED'){
+                log(data.user.name + ' connected');
+            }else if(data.type === 'client/USER_DISCONNECTED'){
+                log(data.user.name + ' disconnected');
+            }else{
+                log('Unknown action: ' + data.type);
+            }
+        })
+
+    var input = document.getElementsByTagName('input')[0];
+    input.onchange = function() {
+        socket.emit('action', {type: 'server/MESSAGE', text: this.value});
+        this.value = '';
+    };
+    function log(m) {
+        var p = document.createElement('p');
+        p.appendChild(document.createTextNode(m));
+        p.title = Date();
+        document.body.insertBefore(p, input);
+        p.scrollIntoView();
+    }
+</script>
