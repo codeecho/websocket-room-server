@@ -13,7 +13,7 @@ module.exports = function(options) {
                     socket.user = data.user;
                     if (data.room) {
                         socket.join(socket.room = data.room);
-                        socket.nsp.in(socket.room).emit('action', { type: 'client/USER_CONNECTED', user: socket.user});
+                        socket.nsp.in(socket.room).emit('action', { type: 'client/USER_CONNECTED', user: socket.user, metadata: data.metadata});
                     }                    
                 }else if (socket.room) {
                     
